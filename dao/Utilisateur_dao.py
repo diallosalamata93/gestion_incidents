@@ -104,3 +104,21 @@ class UtilisateurDao(BaseDAO):
             )
         return None
 
+    def get_by_login(self,login):
+        sql="SELECT * FROM utilisateur WHERE login=%s"
+        params=(login,)
+        self.bd.execute(sql, params)
+        ligne=self.bd.fetchone()
+        if ligne:
+            return Utilisateur(
+                id = ligne[0],
+                login = ligne[1],
+                password = ligne[2],
+                nom = ligne[3],
+                prenom = ligne[4],
+                email = ligne[5],
+                role = ligne[6],
+                service = ligne[7],
+                date_creation = ligne[8]
+            )
+        return None
