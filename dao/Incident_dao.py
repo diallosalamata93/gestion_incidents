@@ -49,3 +49,23 @@ class Incident_dao(BaseDAO, ABC):
                 self.bd.commit()
             else:self.bd.rollback()
             return ok
+    def filtrer_Statut(self):
+        sql="""
+        SELECT * FROM incident WHERE statut='OUVERT' OR statut='EN_COURS' OR statut='RESOLU' OR statut='FERME'
+        
+        """
+        self.bd.execute(sql)
+        lignes= self.bd.fetchall()
+        incidents=[]
+        for ligne in lignes:
+            incidents.append(Incidents(
+                id=ligne[0],
+                titre=ligne[1],
+                description=ligne[2],
+                priorite=ligne[3],
+                statut=ligne[4],
+                date_creation=ligne[5],
+                utilisateur_id=ligne[6],
+            ))
+        return incidents
+
