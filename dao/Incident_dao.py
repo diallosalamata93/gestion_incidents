@@ -151,3 +151,18 @@ class Incident_dao(BaseDAO, ABC):
                 utilisateur_id=ligne[6]
             ))
         return incidents
+
+    def modifier_Incident(self, incident,id):
+        sql = """UPDATE incident 
+        SET titre=%s,description=%s,priorite=%s,date_creation=%s
+         WHERE id=%s  
+        """
+        params = (incident.titre, incident.description, incident.priorite, incident.date_creation,
+                  id
+                  )
+        ok = self.bd.execute(sql, params)
+        if ok:
+            self.bd.commit()
+        else:
+            self.bd.rollback()
+        return ok
