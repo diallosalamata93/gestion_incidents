@@ -1,16 +1,31 @@
-# This is a sample Python script.
-
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from Database.Connexion import DatabaseConnection
+from menu.Authentification import Menu_Authentification
+from menu.Interface import Interface
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def main():
+    # Connexion à la base de données
+    db = DatabaseConnection()
+    if not db.connect():
+        print("Impossible de se connecter à la base de données !")
+        return
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    # Boucle principale
+    while True:
+        auth = Menu_Authentification()
+        utilisateur = auth.se_connecter()
+
+        if utilisateur:
+            interface = Interface(utilisateur)
+            interface.afficher_menu()
+
+        print("Voulez-vous vous reconnecter ? (oui/non)")
+        choix = input().strip().lower()
+        if choix != "oui":
+            print("Au revoir !")
+            db.disconnect()
+            break
+
+
+if __name__ == "__main__":
+    main()

@@ -13,6 +13,6 @@ class BaseDAO(ABC):
     def get_by_id(self,id):
         pass
     @abstractmethod
-    def get_delete_by(self):
+    def get_delete_by(self,id):
         pass
     

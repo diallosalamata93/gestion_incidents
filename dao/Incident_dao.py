@@ -1,10 +1,10 @@
-from abc import ABC
+
 
 from dao.base_dao import BaseDAO
 from models.Incidents import Incidents
 
 
-class Incident_dao(BaseDAO, ABC):
+class Incident_dao(BaseDAO):
     def __init__(self):
         super().__init__()
 
@@ -29,7 +29,7 @@ class Incident_dao(BaseDAO, ABC):
                 )
             return None
 
-    def delete_by_id(self, id):
+    def get_delete_by(self, id):
             sql = "DELETE FROM incident WHERE id=%s"
             params = (id,)
             ok = self.bd.execute(sql, params)
@@ -90,7 +90,7 @@ class Incident_dao(BaseDAO, ABC):
         return incidents
     def detail(self,incident_id):
         sql=""" 
-        SELECT i.*, inter.commentaire,v.duree_minute,inter.date_intervention,inter.technicien_id
+        SELECT i.*, inter.commentaire,inter.duree_minutes,inter.date_intervention,inter.technicien_id
          FROM incident i
         LEFT JOIN intervention inter on  i.id=inter.incident_id
         WHERE i.id=%s
@@ -122,7 +122,7 @@ class Incident_dao(BaseDAO, ABC):
         sql="""
         UPDATE incident SET statut=%s WHERE id=%s
         """
-        params=(id,nouveau_statut)
+        params=(nouveau_statut,id)
         ok=self.bd.execute(sql,params)
         if ok:
             self.bd.commit()
@@ -166,3 +166,21 @@ class Incident_dao(BaseDAO, ABC):
         else:
             self.bd.rollback()
         return ok
+
+    def get_by_utilisateur(self, utilisateur_id):
+        sql = "SELECT * FROM incident WHERE utilisateur_id = %s"
+        params = (utilisateur_id,)
+        self.bd.execute(sql, params)
+        lignes = self.bd.fetchall()
+        incidents = []
+        for ligne in lignes:
+            incidents.append(Incidents(
+                id=ligne[0],
+                titre=ligne[1],
+                description=ligne[2],
+                priorite=ligne[3],
+                statut=ligne[4],
+                date_creation=ligne[5],
+                utilisateur_id=ligne[6]
+            ))
+        return incidents

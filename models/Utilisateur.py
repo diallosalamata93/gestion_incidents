@@ -10,12 +10,12 @@ class Utilisateur:
         self.email = email
         self.role = role
         self.service = service
-        self.date_creation = date_creation.today()
+        self.date_creation = date_creation if date_creation else date.today()
     def __str__(self):
             return f"{self.id}-{self.nom}-{self.prenom}-{self.email}-{self.login}-{self.role}-{self.service}-{self.date_creation}"
     def verif_admin(self):
-        return self.role=="Admin"
+        return self.role=="ADMIN"
     def verif_technicien(self):
-        return self.role=="Technicien"
+        return self.role=="TECHNICIEN"
     def verif_utilisateur(self):
-        return self.role=="Utilisateur"
+        return self.role=="UTILISATEUR"

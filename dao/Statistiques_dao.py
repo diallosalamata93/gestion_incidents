@@ -1,9 +1,10 @@
 from dao.base_dao import BaseDAO
 
 
-class StatistiquesDao(BaseDAO):
+class StatistiquesDAO:
     def __init__(self):
-        super().__init__()
+        from Database.Connexion import DatabaseConnection
+        self.bd = DatabaseConnection()
     def total_Incidents_statut(self):
         sql="""
         SELECT statut, COUNT(*) as total FROM incident GROUP BY statut
@@ -52,17 +53,18 @@ class StatistiquesDao(BaseDAO):
         return self.bd.fetchall()
 
     def taux_resolution_48h(self):
-        sql = """SELECT 
-                 COUNT(*) AS total,
-                 SUM(CASE WHEN SUM(iv.duree_minutes) <= 2880 
-                 THEN 1 ELSE 0 END) AS dans_48h,
-                 SUM(CASE WHEN SUM(iv.duree_minutes) <= 2880 
-                 THEN 1 ELSE 0 END) * 100 / COUNT(*) AS pourcentage
-                 FROM incident i
-                 JOIN intervention iv ON iv.incident_id = i.id
-                 WHERE i.statut IN ('RESOLU', 'FERME')
-                 GROUP BY i.id"""
+        sql = """
+        SELECT 
+            COUNT(*) AS total,
+            SUM(CASE WHEN total_minutes <= 2880 THEN 1 ELSE 0 END) AS dans_48h,
+            SUM(CASE WHEN total_minutes <= 2880 THEN 1 ELSE 0 END) * 100 / COUNT(*) AS pourcentage
+        FROM (
+            SELECT i.id, SUM(iv.duree_minutes) AS total_minutes
+            FROM incident i
+            JOIN intervention iv ON iv.incident_id = i.id
+            WHERE i.statut IN ('RESOLU', 'FERME')
+            GROUP BY i.id
+        ) AS sous_requete
+        """
         self.bd.execute(sql)
-        return self.bd.fetchall()
-
-
+        return self.bd.fetchone()

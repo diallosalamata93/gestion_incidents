@@ -4,7 +4,7 @@ from dao.base_dao import BaseDAO
 from models.Intervention import Intervention
 
 
-class InterventionDao(BaseDAO, ABC):
+class InterventionDao(BaseDAO):
     def __init__(self):
         super().__init__()
     def get_all(self):
@@ -28,7 +28,7 @@ class InterventionDao(BaseDAO, ABC):
                 )
             return None
 
-    def delete_by_id(self, id):
+    def get_delete_by(self, id):
             sql = "DELETE FROM intervention WHERE id=%s"
             params = (id,)
             ok = self.bd.execute(sql, params)
@@ -41,7 +41,7 @@ class InterventionDao(BaseDAO, ABC):
     def ajouter_Intervention(self, intervention):
         sql = """
                insert into intervention(commentaire,duree_minutes,date_intervention,incident_id,technicien_id) 
-               values(%s,%s,%s,%s,%s,%s)
+               values(%s,%s,%s,%s,%s)
                """
         params = (intervention.commentaire, intervention.duree_minutes, intervention.date_intervention, intervention.incident_id, intervention.technicien_id,
                   )

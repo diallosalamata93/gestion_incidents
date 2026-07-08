@@ -28,7 +28,7 @@ class UtilisateurDao(BaseDAO):
                 date_creation= ligne[8]
             )
         return None
-    def delete_by_id(self,id):
+    def get_delete_by(self,id):
         sql = "DELETE FROM utilisateur WHERE id=%s"
         params = (id,)
         ok=self.bd.execute(sql, params)
@@ -70,7 +70,7 @@ class UtilisateurDao(BaseDAO):
                 service = ligne[7],
                 date_creation = ligne[8]
             ))
-            return utilisateurs
+        return utilisateurs
 
     def modifier_Utilisateur(self, utilisateur):
         sql = """UPDATE utilisateur 

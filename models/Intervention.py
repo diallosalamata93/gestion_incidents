@@ -4,7 +4,7 @@ class Intervention:
         self.id = id
         self.commentaire = commentaire
         self.duree_minutes = duree_minutes
-        self.date_intervention = date_intervention
+        self.date_intervention = date_intervention if date_intervention else datetime.now()
         self.incident_id = incident_id
         self.technicien_id = technicien_id
 

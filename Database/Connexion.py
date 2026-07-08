@@ -54,9 +54,7 @@ class DatabaseConnection:
            self.connection = None
            print("Connexion fermée")
 
-        if self.connection:
-            self.connection.close()
-            print(f"connexion fermee")
+
 
     def commit(self):
          #Valider les modifications

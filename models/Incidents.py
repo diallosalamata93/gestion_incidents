@@ -10,11 +10,11 @@ class Incidents:
         self.utilisateur_id = utilisateur_id
     def __str__(self):
         return f"{self.id} - {self.titre}-{self.description}-Priorité:{self.priorite}- statut:{self.statut}"
-    def statut_overt(self):
+    def statut_ouvert(self):
         return self.statut=="OUVERT"
 
     def statut_en_cours(self):
-        return self.statut=="En_COURS"
+        return self.statut=="EN_COURS"
 
     def statut_resolu(self):
         return self.statut=="RESOLU"
@@ -26,10 +26,10 @@ class Incidents:
         return self.priorite=="BASSE"
 
     def priorite_moyenne(self):
-        return self.statut=="MOYENNE"
+        return self.priorite=="MOYENNE"
 
     def priorite_haute(self):
-        return self.statut=="HAUTE"
+        return self.priorite=="HAUTE"
 
     def priorite_critique(self):
-        return self.statut=="CRITIQUE"
+        return self.priorite=="CRITIQUE"
