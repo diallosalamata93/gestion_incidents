@@ -81,22 +81,35 @@ class Interface:
             self.pause()
             return
 
+        incident = self.incident_dao.get_by_id(incident_id)
+
+        if not incident:
+            print("Incident introuvable !")
+            self.pause()
+            return
+
+        # Vérifier que c'est bien l'incident de l'utilisateur connecté
+        # (sauf technicien et admin qui peuvent tout voir)
+        if self.utilisateur.verif_utilisateur():
+            if incident.utilisateur_id != self.utilisateur.id:
+                print("Accès refusé ! Vous ne pouvez voir que vos propres incidents.")
+                self.pause()
+                return
+
         resultats = self.incident_dao.detail(incident_id)
 
         if not resultats:
             print("Incident introuvable !")
         else:
-            # Afficher les infos de l'incident (première ligne)
             print(f"\nTitre : {resultats[0][1]}")
             print(f"Description : {resultats[0][2]}")
             print(f"Priorité : {resultats[0][3]}")
             print(f"Statut : {resultats[0][4]}")
             print(f"Date création : {resultats[0][5]}")
 
-            # Afficher les interventions
             print("\n--- Interventions ---")
             for ligne in resultats:
-                if ligne[7]:  # si commentaire existe
+                if ligne[7]:
                     print(f"Commentaire : {ligne[7]}")
                     print(f"Durée : {ligne[8]} minutes")
                     print(f"Date : {ligne[9]}")
@@ -106,7 +119,6 @@ class Interface:
                     break
 
         self.pause()
-
     def filtrer_par_statut(self):
         self.cls()
         print("======= FILTRER PAR STATUT =======")
@@ -338,7 +350,46 @@ class Interface:
                 else:
                     print("Erreur lors de la fermeture !")
                 self.pause()
+
         #******************************************************
+    def supprimer_incident(self):
+        self.cls()
+        print("======= SUPPRIMER UN INCIDENT =======")
+        try:
+            id = int(input("ID de l'incident : ").strip())
+        except ValueError:
+            print("ID invalide !")
+            self.pause()
+            return
+
+        incident = self.incident_dao.get_by_id(id)
+        if not incident:
+            print("Incident introuvable !")
+            self.pause()
+            return
+
+        # Vérifier s'il a des interventions
+        interventions = self.intervention_dao.get_by_incident(id)
+        if interventions:
+            print("Impossible ! Cet incident a des interventions associées.")
+            self.pause()
+            return
+
+        print(f"Voulez-vous supprimer l'incident '{incident.titre}' ? (oui/non)")
+        confirmation = input().strip().lower()
+        if confirmation != "oui":
+            print("Suppression annulée !")
+            self.pause()
+            return
+
+        ok = self.incident_dao.get_delete_by(id)
+        if ok:
+            print("Incident supprimé avec succès !")
+        else:
+            print("Erreur lors de la suppression !")
+        self.pause()
+        #******************************************************
+
     def historique_technicien(self):
         self.cls()
         print("======= MON HISTORIQUE =======")
@@ -483,35 +534,50 @@ class Interface:
                 print("Erreur lors de la modification !")
             self.pause()
             #*******************************************
+
     def supprimer_utilisateur(self):
-                self.cls()
-                print("======= SUPPRIMER UN UTILISATEUR =======")
-                try:
-                    id = int(input("ID de l'utilisateur : ").strip())
-                except ValueError:
-                    print("ID invalide !")
-                    self.pause()
-                    return
+        self.cls()
+        print("======= SUPPRIMER UN UTILISATEUR =======")
+        try:
+            id = int(input("ID de l'utilisateur : ").strip())
+        except ValueError:
+            print("ID invalide !")
+            self.pause()
+            return
 
-                utilisateur = self.util_dao.get_by_id(id)
-                if not utilisateur:
-                    print("Utilisateur introuvable !")
-                    self.pause()
-                    return
+        utilisateur = self.util_dao.get_by_id(id)
+        if not utilisateur:
+            print("Utilisateur introuvable !")
+            self.pause()
+            return
 
-                print(f"Voulez-vous supprimer {utilisateur} ? (oui/non)")
-                confirmation = input().strip().lower()
-                if confirmation != "oui":
-                    print("Suppression annulée !")
-                    self.pause()
-                    return
+        # Vérifier s'il a des incidents
+        incidents = self.incident_dao.get_by_utilisateur(id)
+        if incidents:
+            print("Impossible ! Cet utilisateur a des incidents associés.")
+            self.pause()
+            return
 
-                ok = self.util_dao.get_delete_by(id)
-                if ok:
-                    print("Utilisateur supprimé avec succès !")
-                else:
-                    print("Erreur ! L'utilisateur a des incidents ou interventions associés.")
-                self.pause()
+        # Vérifier s'il a des interventions
+        interventions = self.intervention_dao.get_historique_technicien_Intervention(id)
+        if interventions:
+            print("Impossible ! Cet utilisateur a des interventions associées.")
+            self.pause()
+            return
+
+        print(f"Voulez-vous supprimer {utilisateur} ? (oui/non)")
+        confirmation = input().strip().lower()
+        if confirmation != "oui":
+            print("Suppression annulée !")
+            self.pause()
+            return
+
+        ok = self.util_dao.get_delete_by(id)
+        if ok:
+            print("Utilisateur supprimé avec succès !")
+        else:
+            print("Erreur lors de la suppression !")
+        self.pause()
                 #***************************
 
     def rechercher_utilisateur(self):
@@ -602,9 +668,10 @@ class Interface:
             print("7. Prendre en charge un incident")
             print("8. Résoudre un incident")
             print("9. Fermer un incident")
-            print("10. Ajouter une intervention")
+            print("10. Supprimer un incident")
+            print("11. Ajouter une intervention")
             print("=== STATISTIQUES ===")
-            print("11. Voir les statistiques")
+            print("12. Voir les statistiques")
             print("0. Se déconnecter")
             print("==========================")
             choix = input("Votre choix : ").strip()
@@ -628,8 +695,10 @@ class Interface:
             elif choix == "9":
                 self.fermer_incident()
             elif choix == "10":
-                self.ajouter_intervention()
+                self.supprimer_incident()
             elif choix == "11":
+                self.ajouter_intervention()
+            elif choix == "12":
                 self.voir_statistiques()
             elif choix == "0":
                 print("Déconnexion...")
